@@ -27,9 +27,13 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # a simple page that says hello
+
+    @app.route('/')
+    def home():
+        return "Hello World!!"
+
     @app.route('/hello', methods=['GET', 'POST'])
-    def hello():
+    def api():
         content = request.get_json(force=True)
         return content
 
