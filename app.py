@@ -6,7 +6,7 @@ from dotenv import dotenv_values
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 
-config = dotenv_values(".env")
+# config = dotenv_values(".env")
 
 def create_product(data):
     mongo_url = "mongodb+srv://queirozale7:v1-vs4%3Dx@cluster0.x6emw.mongodb.net/test"
@@ -16,7 +16,7 @@ def create_product(data):
 
 @app.route('/')
 def index():
-    return f"<h1>Welcome to our server {config['TEST_API']} !!</h1>"
+    return f"<h1>Welcome to our server {os.environ['TEST_API']} !!</h1>"
 
 @app.route('/api/create_product', methods=['GET', 'POST'])
 def api():
