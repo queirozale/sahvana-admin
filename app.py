@@ -1,16 +1,16 @@
 import os
 
-from flask import Flask
-from flask import request
+from flask import Flask, request
 from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, support_credentials=True)
 
 @app.route('/')
-def home():
-    return "Hello World!!"
+def index():
+    return "<h1>Welcome to our server !!</h1>"
 
-@app.route('/hello', methods=['GET', 'POST'])
+@app.route('/api', methods=['GET', 'POST'])
 def api():
     content = request.get_json(force=True)
     return content
