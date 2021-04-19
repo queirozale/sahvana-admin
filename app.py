@@ -1,10 +1,11 @@
 import os
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask_cors import CORS
 from dotenv import dotenv_values
 from pymongo import MongoClient
 import json
 from bson import ObjectId
+import shopify
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
@@ -28,10 +29,34 @@ def find_product():
 
     return list(collection.find({}))
 
+def save_products():
+    shop_url = "https://{}:{}@{}.myshopify.com/admin".format(
+        os.environ['SHOPIFY_API_KEY'], 
+        os.environ['SHOPIFY_PASSWORD'], 
+        os.environ['SHOP_NAME']
+    )
+    shopify.ShopifyResource.set_site(shop_url)
+
+    db_products = find_product()
+    for db_prodcut in db_products:
+        product = shopify.Product()
+        print(db_prodcut['title'])
+        product.title = db_prodcut['title']
+        product.id
+        product.status = "draft"
+        product.save()
+
+    # image = shopify.Image()
+    # image.src = img_url
+    # product.images = [image] # Here's the change
+
+
+
+
 
 @app.route('/')
 def index():
-    return f"<h1>Welcome to our server !!</h1>"
+    return render_template('index.html')
 
 @app.route('/api/create_product', methods=['GET', 'POST'])
 def api_create_product():
@@ -51,6 +76,18 @@ def api_find_product():
         result = "Error"
 
     return result
+
+@app.route('/api/save_products', methods=['GET', 'POST'])
+def api_save_products():
+    try:
+        save_products()
+        result = "Product saved"
+    except:
+        result = "Error"
+
+    return result
+
+
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
