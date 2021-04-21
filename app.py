@@ -22,12 +22,13 @@ def create_product(data):
     collection = db['products']
     collection.insert_one(data)
 
-def find_product():
+def find_product(email):
     client = MongoClient(os.environ['DATABASE_URL'])
     db = client['sahvana-dev']
     collection = db['products']
+    query = {'email': email}
 
-    return list(collection.find({}))
+    return list(collection.find(query))
 
 def save_products():
     shop_url = "https://{}:{}@{}.myshopify.com/admin".format(
@@ -50,10 +51,6 @@ def save_products():
     # image.src = img_url
     # product.images = [image] # Here's the change
 
-
-
-
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -68,10 +65,11 @@ def api_create_product():
         result = "Error"
     return result
 
-@app.route('/api/find_product', methods=['GET'])
+@app.route('/api/find_product', methods=['GET', 'POST'])
 def api_find_product():
+    content = request.get_json(force=True)
     try:
-        result = JSONEncoder().encode(find_product())
+        result = JSONEncoder().encode(find_product(content['email']))
     except:
         result = "Error"
 
@@ -88,7 +86,12 @@ def api_save_products():
     return result
 
 
-
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
     app.run(threaded=True)
+
+
+# .\env\Scripts\activate
+# set FLASK_APP=app
+# set FLASK_ENV=development
+# flask run
