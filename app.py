@@ -6,6 +6,7 @@ from pymongo import MongoClient
 import json
 from bson import ObjectId
 import shopify
+import requests
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
@@ -15,6 +16,20 @@ class JSONEncoder(json.JSONEncoder):
         if isinstance(o, ObjectId):
             return str(o)
         return json.JSONEncoder.default(self, o)
+
+def save_image_imgbb(img):
+    img = img.split('base64,')[1]
+    img = img.encode("utf-8")
+
+    url = "https://api.imgbb.com/1/upload"
+    payload = {
+        "key": os.environ['IMGBB_API_KEY'],
+        "image": img,
+    }
+    res = requests.post(url, payload)
+    img_url = res.json()['data']['url']
+
+    return img_url 
 
 def create_product(data):
     client = MongoClient(os.environ['DATABASE_URL'])
@@ -58,11 +73,19 @@ def index():
 @app.route('/api/create_product', methods=['GET', 'POST'])
 def api_create_product():
     content = request.get_json(force=True)
-    try:
-        create_product(content)
-        result = "Product created"
-    except:
-        result = "Error"
+    # try:
+    images = content['imageFiles']
+    images_url = []
+    for img in images:
+        if img != None:
+            img_url = save_image_imgbb(img[0])
+            images_url.append(img_url)
+
+    content['imageFiles'] = images_url
+    create_product(content)
+    result = "Product created"
+    # except:
+    #     result = "Error"
     return result
 
 @app.route('/api/find_product', methods=['GET', 'POST'])
