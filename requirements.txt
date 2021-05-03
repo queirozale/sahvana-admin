@@ -8,10 +8,14 @@ idna==2.10
 itsdangerous==1.1.0
 Jinja2==2.11.3
 MarkupSafe==1.1.1
+numpy==1.20.2
+pandas==1.2.4
 pyactiveresource==2.2.2
 PyJWT==2.0.1
 pymongo==3.11.3
+python-dateutil==2.8.1
 python-dotenv==0.17.0
+pytz==2021.1
 PyYAML==5.4.1
 requests==2.25.1
 ShopifyAPI==8.4.1

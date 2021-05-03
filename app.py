@@ -7,6 +7,7 @@ import json
 from bson import ObjectId
 import shopify
 import requests
+import pandas as pd
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
@@ -60,11 +61,87 @@ def save_products():
         product.title = db_prodcut['title']
         product.id
         product.status = "draft"
+        # image = shopify.Image()
+        # image.src = img_url
+        # product.images = [image]
         product.save()
 
-    # image = shopify.Image()
-    # image.src = img_url
-    # product.images = [image] # Here's the change
+def get_agg_orders(vendor):
+    client = MongoClient(os.environ['DATABASE_URL'])
+    db = client["sahvana-dev"]
+    collection = db["orders"]
+
+    query = {'Vendor': vendor}
+    results = list(collection.find(query))
+
+    sales, dates = [], []
+    for result in results :
+        dates.append(result['Paid at'])
+        sales.append(result['Subtotal'])
+
+    df = pd.DataFrame({
+        'Paid at': dates,
+        'Subtotal': sales
+    })
+    df.sort_values(by='Paid at', inplace=True)
+    df.set_index('Paid at', inplace=True)
+
+    g = df.groupby(pd.Grouper(freq="M"))
+    df = g.sum().reset_index()
+
+    data = []
+    for i in range(len(df)):
+        date = df.iloc[i]['Paid at']
+        date = date.strftime("%d-%m-%Y")
+        sales = df.iloc[i]['Subtotal']
+        data.append({'time': date, 'amount': sales})
+        
+    return {'data': data}
+
+def get_sum_sales(vendor):
+    client = MongoClient(os.environ['DATABASE_URL'])
+    db = client["sahvana-dev"]
+    collection = db["orders"]
+
+    query = {'Vendor': vendor}
+    results = list(collection.find(query))
+
+    total_sales = 0
+    for result in results:
+        total_sales += result['Subtotal']
+
+    return {'total_sales': total_sales}
+
+def get_orders(vendor):
+    client = MongoClient(os.environ['DATABASE_URL'])
+    db = client["sahvana-dev"]
+    collection = db["orders"]
+
+    query = {'Vendor': vendor}
+    results = list(collection.find(query))
+    last_results = results[-5:]
+    last_results = last_results[::-1]
+
+    data = []
+    c = 0
+    for result in last_results:
+        date = result['Paid at']
+        date = date.strftime("%d-%m-%Y")
+        name = result['Billing Name']
+        shipTo = result['Shipping City'] + ',' + result['Shipping Province']
+        product = result['Lineitem name']
+        amount = result['Subtotal']
+        data.append({
+            'id': c,
+            'date': date,
+            'name': name,
+            'shipTo': shipTo,
+            'product': product,
+            'amount': amount
+        })
+        c += 1
+
+    return {'data': data}
 
 @app.route('/')
 def index():
@@ -108,6 +185,26 @@ def api_save_products():
 
     return result
 
+@app.route('/api/agg_orders', methods=['GET', 'POST'])
+def api_agg_orders():
+    content = request.get_json(force=True)
+    result = get_agg_orders(content['Vendor'])
+
+    return result
+
+@app.route('/api/total_sales', methods=['GET', 'POST'])
+def api_total_sales():
+    content = request.get_json(force=True)
+    result = get_sum_sales(content['Vendor'])
+
+    return result  
+
+@app.route('/api/orders', methods=['GET', 'POST'])
+def api_orders():
+    content = request.get_json(force=True)
+    result = get_orders(content['Vendor'])
+
+    return result  
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
