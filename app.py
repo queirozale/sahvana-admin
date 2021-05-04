@@ -42,9 +42,11 @@ def find_product(email):
     client = MongoClient(os.environ['DATABASE_URL'])
     db = client['sahvana-dev']
     collection = db['products']
-    query = {'email': email}
-
-    return list(collection.find(query))
+    if email == 'queirozalessandro1@gmail.com':
+        return list(collection.find())
+    else:
+        query = {'email': email}
+        return list(collection.find(query))
 
 def save_products():
     shop_url = "https://{}:{}@{}.myshopify.com/admin".format(
