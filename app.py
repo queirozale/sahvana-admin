@@ -42,7 +42,7 @@ def find_product(email):
     client = MongoClient(os.environ['DATABASE_URL'])
     db = client['sahvana-dev']
     collection = db['products']
-    if email == 'queirozalessandro1@gmail.com':
+    if email in ['queirozalessandro1@gmail.com', 'sahvana.dev@gmail.com']:
         return list(collection.find())
     else:
         query = {'email': email}
