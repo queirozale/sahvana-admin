@@ -36,7 +36,24 @@ def create_product(data):
     client = MongoClient(os.environ['DATABASE_URL'])
     db = client['sahvana-dev']
     collection = db['products']
+
+    data.update({'created_at': data['created_at'][:10]})
+    data.update({'updated_at': data['updated_at'][:10]})
+
     collection.insert_one(data)
+
+def update_product(data):
+    client = MongoClient(os.environ['DATABASE_URL'])
+    db = client['sahvana-dev']
+    collection = db['products']
+
+    data.update({'created_at': data['created_at'][:10]})
+    data.update({'updated_at': data['updated_at'][:10]})
+
+    query = {"_id": ObjectId(data['_id'])}
+    data['_id'] = ObjectId(data['_id'])
+    new_values = {"$set": data}
+    collection.update_one(query, new_values)
 
 def find_product(email):
     client = MongoClient(os.environ['DATABASE_URL'])
@@ -152,7 +169,7 @@ def index():
 @app.route('/api/create_product', methods=['GET', 'POST'])
 def api_create_product():
     content = request.get_json(force=True)
-    # try:
+
     images = content['imageFiles']
     images_url = []
     for img in images:
@@ -163,8 +180,27 @@ def api_create_product():
     content['imageFiles'] = images_url
     create_product(content)
     result = "Product created"
-    # except:
-    #     result = "Error"
+
+    return result
+
+@app.route('/api/update_product', methods=['GET', 'POST'])
+def api_update_product():
+    content = request.get_json(force=True)
+
+    images = content['imageFiles']
+    images_url = []
+    for img in images:
+        if img != None:
+            if type(img) == list:
+                img_url = save_image_imgbb(img[0])
+            else:
+                img_url = img
+            images_url.append(img_url)
+
+    content['imageFiles'] = images_url
+    update_product(content)
+    result = "Product updated"
+
     return result
 
 @app.route('/api/find_product', methods=['GET', 'POST'])
