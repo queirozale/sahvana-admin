@@ -1,7 +1,7 @@
 import os
 from flask import Flask, request, render_template, abort
 from flask_cors import CORS
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 from pymongo import MongoClient
 import json
 from bson import ObjectId
@@ -18,7 +18,15 @@ from integration.product import ShopifyProduct
 app = Flask(__name__)
 
 CORS(app, support_credentials=True)
-config = dotenv_values(".env")
+load_dotenv()
+config = {
+    "DATABASE_URL": os.getenv("DATABASE_URL"),
+    "SHOPIFY_API_KEY": os.getenv("SHOPIFY_API_KEY"),
+    "SHOPIFY_PASSWORD": os.getenv("SHOPIFY_PASSWORD"),
+    "SHOP_NAME": os.getenv("SHOP_NAME"),
+    "IMGBB_API_KEY": os.getenv("IMGBB_API_KEY"),
+}
+
 sahvana_product = SahvanaProduct(config)
 shopify_product = ShopifyProduct(config)
 
