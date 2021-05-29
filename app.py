@@ -1,6 +1,6 @@
 import os
 from flask import Flask, request, render_template, abort
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from dotenv import load_dotenv
 from pymongo import MongoClient
 import json
@@ -16,7 +16,6 @@ from sahvana_tools.product import SahvanaProduct
 from integration.product import ShopifyProduct
 
 app = Flask(__name__)
-
 CORS(app, support_credentials=True)
 
 config = {
@@ -73,8 +72,8 @@ def api_delete_product():
 
     return result
 
-
 @app.route('/api/find_product', methods=['GET', 'POST'])
+@cross_origin()
 def api_find_product():
     content = request.get_json(force=True)
     try:
