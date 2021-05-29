@@ -88,9 +88,9 @@ def api_find_product():
 def handle_webhook():
     data = request.get_json(force=True)
     # verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
-    print(data)
+    print(config)
 
-    return data
+    return config
 
 
 # @app.route('/api/agg_orders', methods=['GET', 'POST'])
