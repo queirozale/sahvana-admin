@@ -11,13 +11,11 @@ from shopify.resources import product
 import hmac
 import hashlib
 import base64
-from flask_ngrok import run_with_ngrok
 
 from sahvana_tools.product import SahvanaProduct
 from integration.product import ShopifyProduct
 
 app = Flask(__name__)
-run_with_ngrok(app)
 
 CORS(app, support_credentials=True)
 config = dotenv_values(".env")
@@ -29,15 +27,6 @@ class JSONEncoder(json.JSONEncoder):
         if isinstance(o, ObjectId):
             return str(o)
         return json.JSONEncoder.default(self, o)
-
-SECRET = 'hush'
-
-def verify_webhook(data, hmac_header):
-    digest = hmac.new(SECRET, data.encode('utf-8'), hashlib.sha256).digest()
-    computed_hmac = base64.b64encode(digest)
-
-    return hmac.compare_digest(computed_hmac, hmac_header.encode('utf-8'))
-
 
 @app.route('/')
 def index():
