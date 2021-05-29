@@ -9,6 +9,9 @@ import shopify
 import requests
 import pandas as pd
 
+from sahvana_tools.product import SahvanaProduct
+from integration.product import ShopifyProduct
+
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 
@@ -17,6 +20,17 @@ class JSONEncoder(json.JSONEncoder):
         if isinstance(o, ObjectId):
             return str(o)
         return json.JSONEncoder.default(self, o)
+
+config = {
+    "DATABASE_URL": os.environ["DATABASE_URL"],
+    "SHOPIFY_API_KEY": os.environ["SHOPIFY_API_KEY"],
+    "SHOPIFY_PASSWORD": os.environ["SHOPIFY_PASSWORD"],
+    "SHOP_NAME": os.environ["SHOP_NAME"],
+    "IMGBB_API_KEY": os.environ["IMGBB_API_KEY"],
+}
+
+sahvana_product = SahvanaProduct(config)
+shopify_product = ShopifyProduct(config)
 
 def save_image_imgbb(img):
     img = img.split('base64,')[1]
@@ -171,7 +185,7 @@ def api_create_product():
 def api_find_product():
     content = request.get_json(force=True)
     try:
-        result = JSONEncoder().encode(find_product(content['email']))
+        result = JSONEncoder().encode(sahvana_product.find_all(content['email']))
     except:
         result = "Error"
 
