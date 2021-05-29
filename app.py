@@ -67,7 +67,7 @@ def api_delete_product():
 
 
 @app.route('/api/find_product', methods=['GET', 'POST'])
-@cross_origin
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def api_find_product():
     content = request.get_json(force=True)
     try:
