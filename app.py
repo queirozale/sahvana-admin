@@ -9,6 +9,7 @@ from integration.product import ShopifyProduct
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, support_credentials=True)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 config = {
     "DATABASE_URL": os.environ["DATABASE_URL"],
