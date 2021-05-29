@@ -29,6 +29,9 @@ config = {
     "IMGBB_API_KEY": os.environ["IMGBB_API_KEY"],
 }
 
+sahvana_product = SahvanaProduct(config)
+shopify_product = ShopifyProduct(config)
+
 def save_image_imgbb(img):
     img = img.split('base64,')[1]
     img = img.encode("utf-8")
@@ -181,8 +184,9 @@ def api_create_product():
 @app.route('/api/find_product', methods=['GET', 'POST'])
 def api_find_product():
     content = request.get_json(force=True)
+    sahvana_product = SahvanaProduct(config)
     try:
-        result = JSONEncoder().encode(find_product(content['email']))
+        result = JSONEncoder().encode(sahvana_product.find_all(content['email']))
     except:
         result = "Error"
 
