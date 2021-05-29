@@ -18,7 +18,7 @@ from integration.product import ShopifyProduct
 app = Flask(__name__)
 
 CORS(app, support_credentials=True)
-load_dotenv()
+
 config = {
     "DATABASE_URL": os.environ["DATABASE_URL"],
     "SHOPIFY_API_KEY": os.environ["SHOPIFY_API_KEY"],
