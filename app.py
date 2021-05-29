@@ -1,16 +1,8 @@
 import os
-from flask import Flask, request, render_template, abort
-from flask_cors import CORS, cross_origin
-from dotenv import load_dotenv
-from pymongo import MongoClient
+from flask import Flask, request, render_template
+from flask_cors import CORS
 import json
 from bson import ObjectId
-import pandas as pd
-import shopify
-from shopify.resources import product
-import hmac
-import hashlib
-import base64
 
 from sahvana_tools.product import SahvanaProduct
 from integration.product import ShopifyProduct
@@ -72,8 +64,8 @@ def api_delete_product():
 
     return result
 
+
 @app.route('/api/find_product', methods=['GET', 'POST'])
-@cross_origin()
 def api_find_product():
     content = request.get_json(force=True)
     try:
@@ -83,6 +75,7 @@ def api_find_product():
 
     return result
 
+
 @app.route('/webhook', methods=['GET', 'POST'])
 def handle_webhook():
     data = request.get_json(force=True)
@@ -90,31 +83,6 @@ def handle_webhook():
     print(config)
 
     return config
-
-
-# @app.route('/api/agg_orders', methods=['GET', 'POST'])
-# def api_agg_orders():
-#     content = request.get_json(force=True)
-#     result = get_agg_orders(content['Vendor'])
-
-#     return result
-
-
-# @app.route('/api/total_sales', methods=['GET', 'POST'])
-# def api_total_sales():
-#     content = request.get_json(force=True)
-#     result = get_sum_sales(content['Vendor'])
-
-#     return result  
-
-
-# @app.route('/api/orders', methods=['GET', 'POST'])
-# def api_orders():
-#     content = request.get_json(force=True)
-#     result = get_orders(content['Vendor'])
-
-#     return result  
-
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
