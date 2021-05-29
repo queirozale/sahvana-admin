@@ -147,18 +147,3 @@ class ShopifyProduct:
                 print("Error on product delete!")
         else:
             print("Product not found")
-<<<<<<< HEAD
-
-
-    
-
-
-
-
-
-
-
-
-
-=======
->>>>>>> 4340c105c79e902dac3d76b14699b093adad916f
