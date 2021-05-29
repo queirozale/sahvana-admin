@@ -20,11 +20,11 @@ app = Flask(__name__)
 CORS(app, support_credentials=True)
 load_dotenv()
 config = {
-    "DATABASE_URL": os.getenv("DATABASE_URL"),
-    "SHOPIFY_API_KEY": os.getenv("SHOPIFY_API_KEY"),
-    "SHOPIFY_PASSWORD": os.getenv("SHOPIFY_PASSWORD"),
-    "SHOP_NAME": os.getenv("SHOP_NAME"),
-    "IMGBB_API_KEY": os.getenv("IMGBB_API_KEY"),
+    "DATABASE_URL": os.environ["DATABASE_URL"],
+    "SHOPIFY_API_KEY": os.environ["SHOPIFY_API_KEY"],
+    "SHOPIFY_PASSWORD": os.environ["SHOPIFY_PASSWORD"],
+    "SHOP_NAME": os.environ["SHOP_NAME"],
+    "IMGBB_API_KEY": os.environ["IMGBB_API_KEY"],
 }
 
 sahvana_product = SahvanaProduct(config)
