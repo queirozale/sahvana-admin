@@ -11,11 +11,14 @@ from shopify.resources import product
 import hmac
 import hashlib
 import base64
+from flask_ngrok import run_with_ngrok
 
 from sahvana_tools.product import SahvanaProduct
 from integration.product import ShopifyProduct
 
 app = Flask(__name__)
+run_with_ngrok(app)
+
 CORS(app, support_credentials=True)
 config = dotenv_values(".env")
 sahvana_product = SahvanaProduct(config)
@@ -34,7 +37,6 @@ def verify_webhook(data, hmac_header):
     computed_hmac = base64.b64encode(digest)
 
     return hmac.compare_digest(computed_hmac, hmac_header.encode('utf-8'))
-
 
 
 @app.route('/')
@@ -85,11 +87,13 @@ def api_find_product():
 
     return result
 
-@app.route('/webhook', methods=['POST'])
+@app.route('/webhook', methods=['GET', 'POST'])
 def handle_webhook():
-    data = request.get_data()
+    data = request.get_json(force=True)
     # verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
     print(data)
+
+    return data
 
 
 # @app.route('/api/agg_orders', methods=['GET', 'POST'])
