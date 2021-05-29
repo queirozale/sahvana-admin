@@ -1,9 +1,7 @@
-from dotenv import dotenv_values
 import requests
+import os
 
-config = dotenv_values("../.env")
-
-IMGBB_API_KEY = config["IMGBB_API_KEY"]
+IMGBB_API_KEY = os.environ['IMGBB_API_KEY']
 
 def save_image_imgbb(img):
     img = img.split('base64,')[1]

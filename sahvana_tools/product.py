@@ -77,5 +77,3 @@ class SahvanaProduct:
         else:
             query = {'email': email}
             return list(self.collection.find(query))
-
-

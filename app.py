@@ -8,8 +8,7 @@ from sahvana_tools.product import SahvanaProduct
 from integration.product import ShopifyProduct
 
 app = Flask(__name__)
-app.config['CORS_HEADERS'] = 'Content-Type'
-CORS(app, support_credentials=True, resources={r"/foo": {"origins": "http://localhost:3000"}})
+CORS(app, support_credentials=True)
 
 config = {
     "DATABASE_URL": os.environ["DATABASE_URL"],
@@ -18,9 +17,6 @@ config = {
     "SHOP_NAME": os.environ["SHOP_NAME"],
     "IMGBB_API_KEY": os.environ["IMGBB_API_KEY"],
 }
-
-sahvana_product = SahvanaProduct(config)
-shopify_product = ShopifyProduct(config)
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
@@ -36,6 +32,10 @@ def index():
 @app.route('/api/create_product', methods=['GET', 'POST'])
 def api_create_product():
     content = request.get_json(force=True)
+
+    sahvana_product = SahvanaProduct(config)
+    shopify_product = ShopifyProduct(config)
+
     sahvana_product.create(data=content)
     shopify_product.create(data=content)
 
@@ -47,8 +47,13 @@ def api_create_product():
 @app.route('/api/update_product', methods=['GET', 'POST'])
 def api_update_product():
     content = request.get_json(force=True)
+    
+    sahvana_product = SahvanaProduct(config)
+    shopify_product = ShopifyProduct(config)
+
     sahvana_product.update(data=content)
     shopify_product.update(data=content)
+
 
     result = "Product updated"
 
@@ -58,6 +63,10 @@ def api_update_product():
 @app.route('/api/delete_product', methods=['GET', 'POST'])
 def api_delete_product():
     content = request.get_json(force=True)
+
+    sahvana_product = SahvanaProduct(config)
+    shopify_product = ShopifyProduct(config)
+
     sahvana_product.delete(_id=content["_id"])
     shopify_product.delete(_id=content["_id"])
 
@@ -67,9 +76,11 @@ def api_delete_product():
 
 
 @app.route('/api/find_product', methods=['GET', 'POST'])
-@cross_origin(origin='localhost',headers=['Content- Type','Authorization'])
 def api_find_product():
     content = request.get_json(force=True)
+
+    sahvana_product = SahvanaProduct(config)
+
     try:
         result = JSONEncoder().encode(sahvana_product.find_all(content['email']))
     except:
@@ -82,9 +93,8 @@ def api_find_product():
 def handle_webhook():
     data = request.get_json(force=True)
     # verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
-    print(config)
 
-    return config
+    return data
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
