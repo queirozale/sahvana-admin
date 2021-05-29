@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, cross_origin
 from flask_cors import CORS
 import json
 from bson import ObjectId
@@ -67,6 +67,7 @@ def api_delete_product():
 
 
 @app.route('/api/find_product', methods=['GET', 'POST'])
+@cross_origin
 def api_find_product():
     content = request.get_json(force=True)
     try:
