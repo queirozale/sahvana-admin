@@ -8,7 +8,7 @@ from sahvana_tools.product import SahvanaProduct
 from integration.product import ShopifyProduct
 
 app = Flask(__name__)
-CORS(app, support_credentials=True)
+CORS(app, resources={r"/*": {"origins": "*"}}, support_credentials=True)
 
 config = {
     "DATABASE_URL": os.environ["DATABASE_URL"],
