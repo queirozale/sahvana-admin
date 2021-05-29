@@ -1,6 +1,6 @@
 import os
-from flask import Flask, request, render_template, cross_origin
-from flask_cors import CORS
+from flask import Flask, request, render_template
+from flask_cors import CORS, cross_origin
 import json
 from bson import ObjectId
 
@@ -8,8 +8,8 @@ from sahvana_tools.product import SahvanaProduct
 from integration.product import ShopifyProduct
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}}, support_credentials=True)
 app.config['CORS_HEADERS'] = 'Content-Type'
+CORS(app, support_credentials=True, resources={r"/foo": {"origins": "http://localhost:3000"}})
 
 config = {
     "DATABASE_URL": os.environ["DATABASE_URL"],
@@ -67,7 +67,7 @@ def api_delete_product():
 
 
 @app.route('/api/find_product', methods=['GET', 'POST'])
-@cross_origin(origin='*',headers=['Content-Type','Authorization'])
+@cross_origin(origin='localhost',headers=['Content- Type','Authorization'])
 def api_find_product():
     content = request.get_json(force=True)
     try:
