@@ -1,11 +1,16 @@
 import os
 from flask import Flask, request, render_template
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 import json
 from bson import ObjectId
+from datetime import datetime, date, timedelta
 
 from sahvana_tools.product import SahvanaProduct
-from integration.product import ShopifyProduct
+from sahvana_tools.order import SahvanaOrder
+from sahvana_tools.sales import SahvanaSales
+from sahvana_tools.utils import get_sales_by_date_range, get_agg_sales, get_sales
+from integration.shopify.product import ShopifyProduct
+from integration.auth0.users import Auth0User
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
@@ -16,6 +21,9 @@ config = {
     "SHOPIFY_PASSWORD": os.environ["SHOPIFY_PASSWORD"],
     "SHOP_NAME": os.environ["SHOP_NAME"],
     "IMGBB_API_KEY": os.environ["IMGBB_API_KEY"],
+    "AUTH0_CLIENT_ID": os.environ["AUTH0_CLIENT_ID"],
+    "AUTH0_CLIENT_SECRET": os.environ["AUTH0_CLIENT_SECRET"],
+    "AUTH0_DOMAIN": os.environ["AUTH0_DOMAIN"]
 }
 
 class JSONEncoder(json.JSONEncoder):
@@ -89,12 +97,61 @@ def api_find_product():
     return result
 
 
-@app.route('/webhook', methods=['GET', 'POST'])
-def handle_webhook():
-    data = request.get_json(force=True)
-    # verified = verify_webhook(data, request.headers.get('X-Shopify-Hmac-SHA256'))
+@app.route('/api/last_orders', methods=['GET', 'POST'])
+def api_get_last_orders():
+    sahvana_order = SahvanaOrder(config)
+
+    result = JSONEncoder().encode(sahvana_order.get_last())
+
+    return result
+
+
+@app.route('/api/sales', methods=['GET', 'POST'])
+def api_get_sales():
+    sahvana_sales = SahvanaSales(config)
+    vendor = "Brida"
+    sales = sahvana_sales.find_by_vendor(vendor)
+    max_date = date.today()
+    min_date = max_date - timedelta(days=365)
+    max_date = datetime.strftime(max_date, "%Y-%m-%d")
+    min_date = datetime.strftime(min_date, "%Y-%m-%d")
+    filtered_sales = get_sales_by_date_range(sales, min_date, max_date)
+    data = get_agg_sales(filtered_sales)
 
     return data
+
+
+@app.route('/api/create_user', methods=['GET', 'POST'])
+def api_create_user():
+    content = request.get_json(force=True)
+    additional_data = {
+        "blocked": False,
+        "email_verified": False,
+        "connection": "Username-Password-Authentication",
+    }
+    data = dict(content, **additional_data)
+    auth0_user = Auth0User(config)
+    auth0_user.create(data)
+
+    result = "User created!"
+
+    return result
+
+@app.route('/webhook', methods=['GET', 'POST'])
+def handle_webhook():
+    content = request.get_json(force=True)
+
+    sahvana_order = SahvanaOrder(config)
+    sahvana_order.add(content)
+
+    sahvana_sales = SahvanaSales(config)
+    sales = get_sales(content)
+    sahvana_sales.add(sales)
+
+    result = "Order successfully added!"
+    print(result)
+
+    return result
 
 if __name__ == '__main__':
     # Threaded option to enable multiple instances for multiple user access support
