@@ -176,8 +176,8 @@ def api_create_user():
                 except:
                     error_products.append(migrated_data['title'])
 
-                if len(error_products) > 0:
-                    store_migration_errors(config, vendor, error_products)
+            if len(error_products) > 0:
+                store_migration_errors(config, vendor, error_products)
 
             result["data_migration"] = "Success"
         except:
