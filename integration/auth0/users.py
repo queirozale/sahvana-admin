@@ -102,3 +102,29 @@ class Auth0User:
         except Exception as e:
             print(f'Generic Exception: {e}')
 
+
+    def update(self, user_id, new_user_data):
+        access_token = self.get_access_token()
+
+        # Add the token to the Authorization header of the request
+        headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json'
+        }
+
+        # Get all Applications using the token
+        try:
+            res = requests.patch(f'{self.base_url}/api/v2/users/{user_id}', headers=headers, json=new_user_data)
+            data = res.json()
+            if res.status_code == 204:
+                print("User updated!")
+            return data
+        except HTTPError as e:
+            print(f'HTTPError: {str(e.code)} {str(e.reason)}')
+        except URLRequired as e:
+            print(f'URLRequired: {str(e.reason)}')
+        except RequestException as e:
+            print(f'RequestException: {e}')
+        except Exception as e:
+            print(f'Generic Exception: {e}')
+

@@ -104,6 +104,7 @@ def get_agg_sales(sales):
 
     df_agg = df_.groupby(pd.Grouper(freq="M")).sum().reset_index()
     df_agg['price'] = df_agg['price'].round(2)
+    df_agg['date'] = df_agg['date'].apply(lambda x: datetime.strftime(x, "%Y-%m-%dT%H:%M:%S")[:10])
 
     chart_data = df_agg.T.to_dict()
     

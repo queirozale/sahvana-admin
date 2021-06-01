@@ -108,15 +108,38 @@ def api_get_last_orders():
 
 @app.route('/api/sales', methods=['GET', 'POST'])
 def api_get_sales():
-    sahvana_sales = SahvanaSales(config)
-    vendor = "Brida"
-    sales = sahvana_sales.find_by_vendor(vendor)
-    max_date = date.today()
-    min_date = max_date - timedelta(days=365)
-    max_date = datetime.strftime(max_date, "%Y-%m-%d")
-    min_date = datetime.strftime(min_date, "%Y-%m-%d")
-    filtered_sales = get_sales_by_date_range(sales, min_date, max_date)
-    data = get_agg_sales(filtered_sales)
+    content = request.get_json(force=True)
+    email = content["email"]
+    
+    auth0_user = Auth0User(config)
+    users_list = auth0_user.find_all()
+
+    for user in users_list:
+        if user["email"] == email:
+            vendor = user["nickname"]
+
+    try:
+        sahvana_sales = SahvanaSales(config)
+        sales = sahvana_sales.find_by_vendor(vendor)
+        max_date = date.today()
+        min_date = max_date - timedelta(days=365)
+        max_date = datetime.strftime(max_date, "%Y-%m-%d")
+        min_date = datetime.strftime(min_date, "%Y-%m-%d")
+        filtered_sales = get_sales_by_date_range(sales, min_date, max_date)
+        data = get_agg_sales(filtered_sales)
+        data.update({'chart_data': [v for v in data['chart_data'].values()]})
+        data["last_sales"] = filtered_sales[-5:]
+    except:
+        data = {
+            "chart_data": [
+                {
+                    "date": None,
+                    "price": None
+                }
+            ],
+            "last_sales": [],
+            "sum_sales": 0
+        }
 
     return data
 

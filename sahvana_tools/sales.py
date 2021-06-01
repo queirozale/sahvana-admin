@@ -10,8 +10,19 @@ class SahvanaSales:
 
     def find_by_vendor(self, vendor):
         query = {'vendor': vendor}
+        results = list(self.collection.find(query))
+        results_ = []
+        for r in results:
+            r_ = {}
+            for k in r.keys():
+                if k == "_id":
+                    r_[k] = str(r[k])
+                else:
+                    r_[k] = r[k]
 
-        return list(self.collection.find(query))
+            results_.append(r_)
+
+        return results_
 
     
     def add(self, sales):
