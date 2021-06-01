@@ -9,6 +9,7 @@ from sahvana_tools.product import SahvanaProduct
 from sahvana_tools.order import SahvanaOrder
 from sahvana_tools.sales import SahvanaSales
 from sahvana_tools.utils import get_sales_by_date_range, get_agg_sales, get_sales
+from integration.shopify.utils import data_migration, store_migration_errors
 from integration.shopify.product import ShopifyProduct
 from integration.auth0.users import Auth0User
 
@@ -147,16 +148,42 @@ def api_get_sales():
 @app.route('/api/create_user', methods=['GET', 'POST'])
 def api_create_user():
     content = request.get_json(force=True)
+    vendor = content["nickname"]
+    user_keys = ["email", "name", "nickname", "password"]
     additional_data = {
         "blocked": False,
         "email_verified": False,
         "connection": "Username-Password-Authentication",
     }
-    data = dict(content, **additional_data)
+    data = dict({k: content[k] for k in user_keys}, **additional_data)
     auth0_user = Auth0User(config)
-    auth0_user.create(data)
+    result = auth0_user.create(data)
+    users_list = auth0_user.find_all()
 
-    result = "User created!"
+    if content["data_migration"]:
+        try:
+            shopify_product = ShopifyProduct(config)
+            sahvana_product = SahvanaProduct(config)
+            shopify_product.read_all()
+            products = shopify_product.find_by_vendor(vendor=vendor)
+            print(f"{len(products)} products found")
+            error_products = []
+            for product in products:
+                migrated_data = data_migration(users_list=users_list, prod=product)
+                print(migrated_data['title'])
+                try:
+                    sahvana_product.create(data=migrated_data)
+                except:
+                    error_products.append(migrated_data['title'])
+
+                if len(error_products) > 0:
+                    store_migration_errors(config, vendor, error_products)
+
+            result["data_migration"] = "Success"
+        except:
+            result["data_migration"] = "Error"
+
+    print(result)
 
     return result
 

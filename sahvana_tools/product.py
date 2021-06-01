@@ -32,7 +32,11 @@ class SahvanaProduct:
         images_url = []
         for img in images:
             if img != None:
-                img_url = self.save_image_imgbb(img[0])
+                try:
+                    img_url = self.save_image_imgbb(img[0])
+                except:
+                    img_url = img
+
                 images_url.append(img_url)
 
         data['imageFiles'] = images_url

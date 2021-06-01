@@ -41,7 +41,7 @@ class Auth0User:
             res = requests.get(f'{self.base_url}/api/v2/users', headers=headers)
             data = res.json()
             if res.status_code == 201:
-                print("Users readed!")
+                print("Users readed")
             return data
         except HTTPError as e:
             print(f'HTTPError: {str(e.code)} {str(e.reason)}')
@@ -65,7 +65,7 @@ class Auth0User:
             res = requests.get(f'{self.base_url}/api/v2/users/{user_id}', headers=headers)
             data = res.json()
             if res.status_code == 204:
-                print("Users found!")
+                print("Users found")
             return data
         except HTTPError as e:
             print(f'HTTPError: {str(e.code)} {str(e.reason)}')
@@ -89,10 +89,26 @@ class Auth0User:
         # Get all Applications using the token
         try:
             res = requests.post(f'{self.base_url}/api/v2/users', headers=headers, json=user_data)
-            data = res.json()
             if res.status_code == 201:
-                print("Users created!")
-            return data
+                msg = "User created"
+            elif res.status_code == 400:
+                data = res.json()
+                if data['message'] == "PasswordStrengthError: Password is too weak":
+                    msg = "Password is too weak"
+                else:
+                    msg = "Error"
+            elif res.status_code == 409:
+                data = res.json()
+                if data["message"] == 'The user already exists.':
+                    msg = "User already exists"
+                else:
+                    msg = "Error"
+            else:
+                msg = "Error"
+                
+            return {
+                "message": msg
+            }
         except HTTPError as e:
             print(f'HTTPError: {str(e.code)} {str(e.reason)}')
         except URLRequired as e:
@@ -117,7 +133,7 @@ class Auth0User:
             res = requests.patch(f'{self.base_url}/api/v2/users/{user_id}', headers=headers, json=new_user_data)
             data = res.json()
             if res.status_code == 204:
-                print("User updated!")
+                print("User updated")
             return data
         except HTTPError as e:
             print(f'HTTPError: {str(e.code)} {str(e.reason)}')
