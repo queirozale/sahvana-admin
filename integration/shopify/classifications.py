@@ -16,8 +16,9 @@ categoriesOptions = {
     "Bijoux",
     "Jóias",
     "Acessório",
+    "Moda Íntima"
   ],
-  "Unissex": [
+  "Genderless": [
     "Roupa",
     "Calçado",
     "Bolsa",
@@ -140,10 +141,13 @@ subcategoriesOptionsFemale = {
     'Óculos',
     'Pequeno acessório',
     'Relógio'
+  ],
+  'Moda Íntima': [
+    'Sleep Wear e Lingerie'
   ]
 }
 
-subcategoriesOptionsUnissex = {
+subcategoriesOptionsGenderless = {
   'Roupa': [
     'Camiseta',
     'Regata',
