@@ -1,4 +1,4 @@
-from .classifications import categoriesOptions, subcategoriesOptionsMale, subcategoriesOptionsFemale, subcategoriesOptionsUnissex
+from .classifications import categoriesOptions, subcategoriesOptionsMale, subcategoriesOptionsFemale, subcategoriesOptionsGenderless
 from pymongo import MongoClient
 
 def get_payload(prod):
@@ -132,7 +132,7 @@ class ProductData:
             subs = {
                 'Masculino': subcategoriesOptionsMale,
                 'Feminino': subcategoriesOptionsFemale,
-                'Unissex': subcategoriesOptionsUnissex
+                'Unissex': subcategoriesOptionsGenderless
             }
 
             if category:
